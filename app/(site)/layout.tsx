@@ -4,10 +4,10 @@ import { getSettings } from "@/lib/settings";
 
 export const dynamic = "force-dynamic";
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const settings = getSettings();
+  const settings = await getSettings();
 
   return (
     <div className="flex min-h-screen flex-col">

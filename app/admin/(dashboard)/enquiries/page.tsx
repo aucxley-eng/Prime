@@ -27,8 +27,8 @@ export default async function AdminEnquiriesPage({
     requested === "new" || requested === "handled" || requested === "archived"
       ? requested
       : "all";
-  const enquiries = listEnquiries(status);
-  const counts = getEnquiryCounts();
+  const enquiries = await listEnquiries(status);
+  const counts = await getEnquiryCounts();
 
   return (
     <div className="mx-auto max-w-5xl">

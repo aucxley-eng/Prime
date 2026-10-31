@@ -4,14 +4,16 @@ import { listEnquiries } from "@/lib/enquiries";
 import { formatDate } from "@/lib/format";
 import { getPropertyCounts, listProperties } from "@/lib/properties";
 
-export default function AdminOverviewPage() {
-  const counts = getPropertyCounts();
-  const enquiries = listEnquiries();
+export default async function AdminOverviewPage() {
+  const counts = await getPropertyCounts();
+  const enquiries = await listEnquiries();
   const newEnquiries = enquiries.filter((item) => item.status === "new").length;
-  const recentProperties = listProperties({
+  const recentProperties = (
+    await listProperties({
     includeDrafts: true,
-    sort: "newest",
-  }).slice(0, 5);
+      sort: "newest",
+    })
+  ).slice(0, 5);
 
   const stats = [
     { label: "Total properties", value: counts.total, href: "/admin/properties" },

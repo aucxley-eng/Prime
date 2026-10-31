@@ -57,7 +57,7 @@ export async function savePropertyAction(
   if (!summary || !description) {
     return { error: "Summary and description are required." };
   }
-  if (isRefTaken(ref, id || undefined)) {
+  if (await isRefTaken(ref, id || undefined)) {
     return { error: `Reference ${ref} is already used by another property.` };
   }
 
@@ -116,7 +116,7 @@ export async function savePropertyAction(
       status: isStatus(statusValue) ? statusValue : "draft",
     };
 
-    saved = id ? updateProperty(id, input) : createProperty(input);
+    saved = id ? await updateProperty(id, input) : await createProperty(input);
   } catch (error) {
     return {
       error:
@@ -139,7 +139,7 @@ export async function deletePropertyAction(formData: FormData): Promise<void> {
   if (!(await isAdmin())) throw new Error("Unauthorized");
   const id = text(formData, "id");
   if (!id) return;
-  deleteProperty(id);
+  await deleteProperty(id);
   revalidatePath("/", "layout");
   revalidatePath("/admin/properties");
   redirect("/admin/properties?deleted=1");

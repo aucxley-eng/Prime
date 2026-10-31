@@ -5,14 +5,15 @@ covering Kitengela, Lang'ata and Juja. The public site separates sale and rental
 listings, shows property details and sends every enquiry to the team by WhatsApp. The
 admin area manages properties, photographs, enquiries and contact settings.
 
-Built with Next.js, React, Tailwind CSS and SQLite. There is no external CMS, ORM or
-tracking service.
+Built with Next.js, React and Tailwind CSS on Vercel, with Supabase Postgres for data and
+Supabase Storage for uploaded photographs. There is no external CMS or tracking service.
 
 ## Status
 
 This is a working prototype, not a published inventory. The public site, admin login,
-property CRUD, image uploads, settings, enquiry storage and WhatsApp handoff have been
-exercised against a production build. The listings are **starter content** and must be
+property CRUD, settings, enquiry storage and WhatsApp handoff have been exercised against
+a production build with PostgreSQL. Supabase Storage uploads are wired but still need to
+be verified with project credentials. The listings are **starter content** and must be
 replaced with confirmed inventory, prices and photography before launch.
 
 ## Due diligence
@@ -44,23 +45,27 @@ of the company's actual properties.
 - **React 19.3.1**
 - **Tailwind CSS 4.3.3**
 - **TypeScript 5.9.3**
-- **SQLite** through Node's built-in `node:sqlite` module
-- No ORM, database server, analytics or third-party form service
+- **Supabase Postgres** through the `postgres` client
+- **Supabase Storage** for uploaded property photographs
+- No ORM, analytics or third-party form service
 
-Use Node.js 22.5 or newer so that `node:sqlite` is available. The app was tested on
-Node 26.5.1.
+The app was tested on Node 26.5.1 against PostgreSQL 16. Use Node.js 20.9 or newer.
 
 ## Run locally
 
 ```bash
 cd /home/aucxley/Work/prime
+createdb prime_test
 cp .env.example .env.local
 npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. The database and 12 starter listings are created on first
-database access. The admin area is at <http://localhost:3000/admin>.
+For local development, set `DATABASE_URL=postgresql:///prime_test?host=/var/run/postgresql`.
+The schema, default settings and 12 starter listings are created on first database access.
+Open <http://localhost:3000>; the admin area is at <http://localhost:3000/admin>.
+
+Image uploads require the Supabase Storage variables even during local development.
 
 For local development, if `ADMIN_PASSWORD` is unset, the fallback password is
 `prime-sahara-dev`. Do not rely on that fallback in production.
@@ -81,7 +86,10 @@ Copy `.env.example` to `.env.local` and adjust:
 ```dotenv
 ADMIN_PASSWORD=change-me-now
 ADMIN_SESSION_SECRET=replace-with-a-long-random-secret
-DATABASE_PATH=./data/prime.db
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres?sslmode=require
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=replace-with-the-service-role-key
+SUPABASE_STORAGE_BUCKET=property-images
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
@@ -90,13 +98,38 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 - `ADMIN_SESSION_SECRET` — used to sign the admin session cookie. Use a long random value
   in production. If unset in production, a process-local random fallback is used, so
   sessions do not survive a restart.
-- `DATABASE_PATH` — optional. Defaults to `./data/prime.db`.
+- `DATABASE_URL` — Supabase Postgres connection string. On Vercel use the transaction
+  pooler URI on port `6543`; the app disables prepared statements for pooler compatibility.
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase project URL, used for Storage.
+- `SUPABASE_SERVICE_ROLE_KEY` — server-only Supabase service-role key. Never expose this
+  with a `NEXT_PUBLIC_` prefix or in client code.
+- `SUPABASE_STORAGE_BUCKET` — public Storage bucket for property images. Defaults to
+  `property-images`.
 - `NEXT_PUBLIC_SITE_URL` — canonical URL used by metadata, robots and the sitemap. Set it
   to the production origin before launch.
 
 Admin sessions last seven days. The `psp_admin_session` cookie is HTTP-only, SameSite
 Lax and `Secure` in production, so production admin access must be served over HTTPS.
 The local development server does not require HTTPS.
+
+## Deploying to Vercel with Supabase
+
+1. Create a Supabase project. Copy the **transaction pooler** Postgres URI from the
+   project's Connect panel and replace the password placeholder.
+2. In Supabase Storage, create a **public** bucket named `property-images`.
+3. Add every variable from the Environment section to the Vercel project. Mark
+   `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `ADMIN_PASSWORD` and
+   `ADMIN_SESSION_SECRET` as sensitive.
+4. Set `NEXT_PUBLIC_SITE_URL=https://prime-livid-five.vercel.app` before building, because
+   public environment values are embedded at build time.
+5. Deploy, then open the site once. The first database request creates the schema, default
+   settings and starter listings. You can also run `supabase/schema.sql` manually in the
+   Supabase SQL editor.
+6. Sign in at `/admin` and upload one cover image and one gallery image to verify the
+   bucket and service-role key.
+
+Changing Vercel environment variables requires a redeploy. The current failing Vercel
+deployment predates these changes and still uses the old local-SQLite build.
 
 ## Routes
 
@@ -126,34 +159,31 @@ The local development server does not require HTTPS.
 
 ## Data and storage
 
-SQLite tables:
+Supabase Postgres tables:
 
-- `properties` — listing content, JSON-encoded gallery/features/amenities, status and
+- `properties` — listing content, `JSONB` gallery/features/amenities, status and
   timestamps.
 - `enquiries` — contact details, optional property reference, message, source and status
   (`new`, `handled`, `archived`).
 - `settings` — key/value site settings used by the header, footer, contact page and
   WhatsApp links.
 
+The schema is created on first database access from `lib/db.ts`; `supabase/schema.sql`
+contains the same schema for manual setup or review. Row-level security is enabled with no
+public policies, so the public Supabase APIs cannot read or write these tables. The app
+connects directly with the Postgres role.
+
 The database is seeded with 12 starter properties from `lib/seed-data.ts` and default
-settings from `lib/defaults.ts` only when the properties table is empty. Deleting the
-database resets it to starter content on the next request.
+settings from `lib/defaults.ts` only when the properties table is empty. Deleting all
+properties resets it to starter content on the next request.
 
-Database files are ignored by git:
+Uploaded images are written to the public Supabase Storage bucket named by
+`SUPABASE_STORAGE_BUCKET` and stored as absolute public URLs. Uploads are limited to JPEG,
+PNG, WebP or AVIF and 8 MB per file. Manually entered image paths must start with `/`.
 
-```text
-data/*.db
-data/*.db-*
-```
-
-Uploaded images are written to `public/uploads/` and served from `/uploads/...`.
-Gallery and cover paths must start with `/`; remote image URLs are rejected. Uploads are
-limited to JPEG, PNG, WebP or AVIF and 8 MB per file.
-
-**Production storage:** both `data/` and `public/uploads/` must live on persistent disk.
-This setup is suitable for a VPS or container with a volume, not an ephemeral serverless
-filesystem. For serverless deployment, replace local SQLite/uploads with a managed
-database and object storage.
+**Production storage:** both Vercel and Supabase must have the environment variables above.
+The bucket must exist and be public; database rows and image objects persist independently
+of Vercel deployments.
 
 ## Editing content
 
@@ -178,7 +208,7 @@ The property and contact forms validate in the browser and POST JSON to
 
 1. Rejects honeypot submissions, short names/phone numbers and over-limit requests.
 2. Checks that a referenced property is still published.
-3. Saves the enquiry in SQLite with status `new`.
+3. Saves the enquiry in Supabase Postgres with status `new`.
 4. Returns a pre-filled WhatsApp URL.
 
 The browser opens WhatsApp only after the API responds successfully. If WhatsApp is
@@ -190,7 +220,7 @@ retention and access policy before launch.
 
 ## Verification
 
-The following were run against the production build with an isolated SQLite database:
+The following were run against the production build with an isolated PostgreSQL database:
 
 ```bash
 npm run lint
@@ -207,6 +237,8 @@ Smoke checks covered:
 - Settings save reflected on the public contact page.
 - Enquiry API persistence, admin status update and delete.
 - WhatsApp URL generation.
+- Supabase Storage uploads are not covered without project credentials; test one cover and
+  one gallery upload in the deployed admin before launch.
 
 No browser automation suite is committed to the repository. Add one before treating the
 UI as regression-tested.
@@ -223,10 +255,9 @@ app/
 ├── robots.ts, sitemap.ts
 actions/                     Server actions for auth, properties, settings and enquiries
 components/                  Public and admin UI components
-lib/                         Types, SQLite, queries, auth, uploads and seed data
+lib/                         Types, Postgres, queries, auth, uploads and seed data
 public/images/               Logo and illustrative stock photography
-public/uploads/              Admin-uploaded property images
-data/                        Local SQLite database (ignored by git)
+supabase/schema.sql          Database schema for manual setup/review
 ```
 
 ## Launch checklist
@@ -238,7 +269,8 @@ data/                        Local SQLite database (ignored by git)
 - Confirm business hours and update the viewing note.
 - Set `NEXT_PUBLIC_SITE_URL`, a strong `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET`.
 - Serve production over HTTPS so the secure admin cookie works.
-- Mount persistent storage for `data/` and `public/uploads/`, and back up the database.
+- Create the Supabase project, public `property-images` bucket and Vercel environment
+  variables; back up the Supabase database.
 - Test both phone numbers and the WhatsApp handoff on a real phone.
 - Have the privacy note reviewed against how enquiries are actually stored and handled.
 - Add browser-level tests for the public filters, enquiry forms and admin CRUD.

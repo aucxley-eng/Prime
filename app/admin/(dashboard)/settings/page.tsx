@@ -7,7 +7,7 @@ export default async function AdminSettingsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const settings = getSettings();
+  const settings = await getSettings();
 
   return (
     <div className="mx-auto max-w-4xl">

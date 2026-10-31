@@ -29,7 +29,7 @@ export default async function PropertiesPage({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const settings = getSettings();
+  const settings = await getSettings();
 
   const purposeValue = value(params, "purpose");
   const purpose: Purpose | undefined =
@@ -58,7 +58,7 @@ export default async function PropertiesPage({
     sort,
   };
 
-  const properties = listProperties(filters);
+  const properties = await listProperties(filters);
   const descriptor = [
     purpose === "sale" ? "for sale" : purpose === "rent" ? "for rent" : "",
     filters.location ? `in ${filters.location}` : "",

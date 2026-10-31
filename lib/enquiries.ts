@@ -40,81 +40,77 @@ export interface NewEnquiry {
   source: "contact" | "property";
 }
 
-export function createEnquiry(input: NewEnquiry): Enquiry {
-  const db = getDb();
-  const result = db
-    .prepare(
-      `INSERT INTO enquiries (
-        property_id, property_ref, property_title, name, phone, message, source, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?)`
+export async function createEnquiry(input: NewEnquiry): Promise<Enquiry> {
+  const db = await getDb();
+  const rows = await db<EnquiryRow[]>`
+    INSERT INTO enquiries (
+      property_id, property_ref, property_title, name, phone, message, source, status, created_at
+    ) VALUES (
+      ${input.propertyId || null}, ${input.propertyRef || null},
+      ${input.propertyTitle || null}, ${input.name.trim()},
+      ${input.phone.trim()}, ${input.message.trim()}, ${input.source},
+      'new', ${new Date().toISOString()}
     )
-    .run(
-      input.propertyId || null,
-      input.propertyRef || null,
-      input.propertyTitle || null,
-      input.name.trim(),
-      input.phone.trim(),
-      input.message.trim(),
-      input.source,
-      new Date().toISOString()
-    );
-
-  const row = db
-    .prepare("SELECT * FROM enquiries WHERE id = ?")
-    .get(Number(result.lastInsertRowid)) as unknown as EnquiryRow | undefined;
-  if (!row) throw new Error("Enquiry could not be created");
-  return toEnquiry(row);
+    RETURNING *
+  `;
+  if (!rows[0]) throw new Error("Enquiry could not be created");
+  return toEnquiry(rows[0]);
 }
 
-export function listEnquiries(status?: EnquiryStatus | "all"): Enquiry[] {
-  const db = getDb();
+export async function listEnquiries(
+  status?: EnquiryStatus | "all"
+): Promise<Enquiry[]> {
+  const db = await getDb();
   const rows =
     status && status !== "all"
-      ? (db
-          .prepare(
-            "SELECT * FROM enquiries WHERE status = ? ORDER BY created_at DESC"
-          )
-          .all(status) as unknown as EnquiryRow[])
-      : (db
-          .prepare("SELECT * FROM enquiries ORDER BY created_at DESC")
-          .all() as unknown as EnquiryRow[]);
+      ? await db<EnquiryRow[]>`
+          SELECT * FROM enquiries WHERE status = ${status} ORDER BY created_at DESC
+        `
+      : await db<EnquiryRow[]>`
+          SELECT * FROM enquiries ORDER BY created_at DESC
+        `;
   return rows.map(toEnquiry);
 }
 
-export function getEnquiryCounts(): {
+export async function getEnquiryCounts(): Promise<{
   total: number;
   new: number;
   handled: number;
   archived: number;
-} {
-  const db = getDb();
-  const row = db
-    .prepare(
-      `SELECT
-        COUNT(*) AS total,
-        SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) AS new_count,
-        SUM(CASE WHEN status = 'handled' THEN 1 ELSE 0 END) AS handled,
-        SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) AS archived
-       FROM enquiries`
-    )
-    .get() as {
-    total: number;
-    new_count: number | null;
-    handled: number | null;
-    archived: number | null;
-  };
+}> {
+  const db = await getDb();
+  const [row] = await db<
+    {
+      total: number;
+      new_count: number;
+      handled: number;
+      archived: number;
+    }[]
+  >`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE status = 'new')::int AS new_count,
+      COUNT(*) FILTER (WHERE status = 'handled')::int AS handled,
+      COUNT(*) FILTER (WHERE status = 'archived')::int AS archived
+    FROM enquiries
+  `;
   return {
-    total: row.total,
-    new: row.new_count || 0,
-    handled: row.handled || 0,
-    archived: row.archived || 0,
+    total: row?.total || 0,
+    new: row?.new_count || 0,
+    handled: row?.handled || 0,
+    archived: row?.archived || 0,
   };
 }
 
-export function updateEnquiryStatus(id: number, status: EnquiryStatus): void {
-  getDb().prepare("UPDATE enquiries SET status = ? WHERE id = ?").run(status, id);
+export async function updateEnquiryStatus(
+  id: number,
+  status: EnquiryStatus
+): Promise<void> {
+  const db = await getDb();
+  await db`UPDATE enquiries SET status = ${status} WHERE id = ${id}`;
 }
 
-export function deleteEnquiry(id: number): void {
-  getDb().prepare("DELETE FROM enquiries WHERE id = ?").run(id);
+export async function deleteEnquiry(id: number): Promise<void> {
+  const db = await getDb();
+  await db`DELETE FROM enquiries WHERE id = ${id}`;
 }

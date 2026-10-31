@@ -15,8 +15,8 @@ export const metadata: Metadata = {
     "Contact Prime Sahara Properties by phone or WhatsApp to ask about property in Kitengela, Lang'ata and Juja, or arrange a viewing.",
 };
 
-export default function ContactPage() {
-  const settings = getSettings();
+export default async function ContactPage() {
+  const settings = await getSettings();
   const whatsapp = whatsappUrl(generalEnquiryMessage(), settings);
 
   return (

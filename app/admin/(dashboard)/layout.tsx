@@ -13,7 +13,7 @@ export default async function AdminLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   if (!(await isAdmin())) redirect("/admin/login");
-  const counts = getEnquiryCounts();
+  const counts = await getEnquiryCounts();
 
   return (
     <div className="min-h-screen bg-sand/40 lg:pl-72">

@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { createClient } from "@supabase/supabase-js";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const ALLOWED = new Map([
@@ -9,6 +8,25 @@ const ALLOWED = new Map([
   ["image/webp", "webp"],
   ["image/avif", "avif"],
 ]);
+
+let storageClient: ReturnType<typeof createClient> | undefined;
+
+function getStorageClient() {
+  if (storageClient) return storageClient;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!url || !key) {
+    throw new Error(
+      "Image storage is not configured. Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY."
+    );
+  }
+
+  storageClient = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  return storageClient;
+}
 
 export async function saveUpload(
   file: File | null,
@@ -24,11 +42,23 @@ export async function saveUpload(
     throw new Error("Images must be JPEG, PNG, WebP or AVIF.");
   }
 
-  const directory = path.join(process.cwd(), "public", "uploads");
-  await fs.mkdir(directory, { recursive: true });
+  const bucket = process.env.SUPABASE_STORAGE_BUCKET?.trim() || "property-images";
+  const filename = `${prefix}/${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const storage = getStorageClient();
 
-  const filename = `${prefix}-${Date.now()}-${randomUUID().slice(0, 8)}.${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(path.join(directory, filename), buffer);
-  return `/uploads/${filename}`;
+  const { error } = await storage.storage
+    .from(bucket)
+    .upload(filename, bytes, {
+      contentType: file.type,
+      cacheControl: "31536000",
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(`Image upload failed: ${error.message}`);
+  }
+
+  const { data } = storage.storage.from(bucket).getPublicUrl(filename);
+  return data.publicUrl;
 }

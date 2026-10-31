@@ -17,9 +17,9 @@ export const metadata: Metadata = {
     "Prime Sahara Properties helps buyers, renters and investors find homes and property in Kitengela, Lang'ata and Juja.",
 };
 
-export default function AboutPage() {
-  const settings = getSettings();
-  const counts = getPropertyCounts();
+export default async function AboutPage() {
+  const settings = await getSettings();
+  const counts = await getPropertyCounts();
   const whatsapp = whatsappUrl(generalEnquiryMessage(), settings);
 
   return (

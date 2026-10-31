@@ -64,7 +64,7 @@ export async function saveSettingsAction(
   }
 
   try {
-    saveSettings(input);
+    await saveSettings(input);
   } catch {
     return { error: "Settings could not be saved. Try again." };
   }

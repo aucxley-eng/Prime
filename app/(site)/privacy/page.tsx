@@ -9,8 +9,8 @@ export const metadata: Metadata = {
     "How Prime Sahara Properties handles enquiries submitted through this website.",
 };
 
-export default function PrivacyPage() {
-  const settings = getSettings();
+export default async function PrivacyPage() {
+  const settings = await getSettings();
 
   return (
     <section className="py-14 sm:py-20">

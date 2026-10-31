@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   if (clean(data.website, 200)) {
     return NextResponse.json({
       ok: true,
-      whatsappUrl: whatsappUrl(generalEnquiryMessage(), getSettings()),
+      whatsappUrl: whatsappUrl(generalEnquiryMessage(), await getSettings()),
     });
   }
 
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const property = propertyId ? getPropertyById(propertyId) : null;
+  const property = propertyId ? await getPropertyById(propertyId) : null;
   if (propertyId && (!property || property.status !== "published")) {
     return NextResponse.json(
       { error: "That property is no longer available." },
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    createEnquiry({
+    await createEnquiry({
       propertyId: property?.id || null,
       propertyRef: property?.ref || null,
       propertyTitle: property?.title || null,
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const settings = getSettings();
+  const settings = await getSettings();
   const base = property
     ? propertyEnquiryMessage(property, name)
     : generalEnquiryMessage(name);

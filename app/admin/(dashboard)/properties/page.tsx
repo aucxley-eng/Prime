@@ -14,7 +14,7 @@ export default async function AdminPropertiesPage({
   const params = await searchParams;
   const saved = params.saved === "1";
   const deleted = params.deleted === "1";
-  const properties = listProperties({ includeDrafts: true, sort: "newest" });
+  const properties = await listProperties({ includeDrafts: true, sort: "newest" });
 
   return (
     <div className="mx-auto max-w-6xl">

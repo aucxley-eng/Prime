@@ -15,7 +15,7 @@ export default async function EditPropertyPage({
 }) {
   const { id } = await params;
   const query = await searchParams;
-  const property = getPropertyById(id);
+  const property = await getPropertyById(id);
   if (!property) notFound();
 
   return (
@@ -66,7 +66,7 @@ export default async function EditPropertyPage({
         </p>
       ) : null}
 
-      <PropertyForm property={property} nextRef={getNextRef()} />
+      <PropertyForm property={property} nextRef={await getNextRef()} />
     </div>
   );
 }

@@ -12,10 +12,10 @@ import {
   whatsappUrl,
 } from "@/lib/whatsapp";
 
-export default function HomePage() {
-  const settings = getSettings();
-  const featured = getFeaturedProperties(6);
-  const all = listProperties();
+export default async function HomePage() {
+  const settings = await getSettings();
+  const featured = await getFeaturedProperties(6);
+  const all = await listProperties();
   const saleCount = all.filter((property) => property.purpose === "sale").length;
   const rentCount = all.filter((property) => property.purpose === "rent").length;
   const whatsapp = whatsappUrl(generalEnquiryMessage(), settings);

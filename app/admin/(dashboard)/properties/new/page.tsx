@@ -3,7 +3,7 @@ import { PropertyForm } from "@/components/admin/property-form";
 import { Icon } from "@/components/icon";
 import { getNextRef } from "@/lib/properties";
 
-export default function NewPropertyPage() {
+export default async function NewPropertyPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-6">
@@ -19,7 +19,7 @@ export default function NewPropertyPage() {
           Create a listing, upload a cover image and publish when ready.
         </p>
       </div>
-      <PropertyForm nextRef={getNextRef()} />
+      <PropertyForm nextRef={await getNextRef()} />
     </div>
   );
 }

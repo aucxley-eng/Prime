@@ -10,6 +10,7 @@ import {
   getRelatedProperties,
 } from "@/lib/properties";
 import { getSettings } from "@/lib/settings";
+import { absoluteImageUrl, getSiteUrl } from "@/lib/site";
 import {
   displayPrice,
   formatPurpose,
@@ -26,7 +27,7 @@ export async function generateMetadata({
   params: Params;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const property = getPropertyBySlug(slug);
+  const property = await getPropertyBySlug(slug);
   if (!property) return { title: "Property not found" };
 
   return {
@@ -35,21 +36,21 @@ export async function generateMetadata({
     openGraph: {
       title: property.title,
       description: property.summary,
-      images: [{ url: property.image }],
+      images: [{ url: absoluteImageUrl(property.image) }],
     },
   };
 }
 
 export default async function PropertyPage({ params }: { params: Params }) {
   const { slug } = await params;
-  const property = getPropertyBySlug(slug);
+  const property = await getPropertyBySlug(slug);
   if (!property) notFound();
 
-  const settings = getSettings();
-  const related = getRelatedProperties(property);
+  const settings = await getSettings();
+  const related = await getRelatedProperties(property);
   const images = property.gallery.length ? property.gallery : [property.image];
   const whatsapp = whatsappUrl(propertyEnquiryMessage(property), settings);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = getSiteUrl();
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -57,7 +58,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
     name: property.title,
     description: property.summary,
     url: `${siteUrl}/property/${property.slug}`,
-    image: images.map((image) => `${siteUrl}${image}`),
+    image: images.map((image) => absoluteImageUrl(image)),
     address: {
       "@type": "PostalAddress",
       addressLocality: property.location,
