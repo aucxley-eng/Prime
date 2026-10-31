@@ -254,7 +254,7 @@ export default async function PropertyPage({ params }: { params: Params }) {
                 <Icon name="arrow" className="h-4 w-4" />
               </Link>
             </div>
-            <div className="mt-7 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
               {related.map((item) => (
                 <PropertyCard key={item.id} property={item} settings={settings} />
               ))}

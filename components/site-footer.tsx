@@ -19,7 +19,7 @@ export function SiteFooter({ settings }: { settings: SiteSettings }) {
 
   return (
     <footer className="bg-ink text-cream">
-      <div className="container-page py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:py-7">
+      <div className="container-page pt-5 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pt-7 sm:pb-[calc(5.75rem+env(safe-area-inset-bottom))] lg:pb-7">
         <div className="flex items-center justify-between gap-4">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
             <Image

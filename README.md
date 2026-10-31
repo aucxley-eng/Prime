@@ -120,7 +120,7 @@ The local development server does not require HTTPS.
 3. Add every variable from the Environment section to the Vercel project. Mark
    `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `ADMIN_PASSWORD` and
    `ADMIN_SESSION_SECRET` as sensitive.
-4. Set `NEXT_PUBLIC_SITE_URL=https://prime-livid-five.vercel.app` before building, because
+4. Set `NEXT_PUBLIC_SITE_URL=https://prime-two-dun.vercel.app` before building, because
    public environment values are embedded at build time.
 5. Deploy, then open the site once. The first database request creates the schema, default
    settings and starter listings. You can also run `supabase/schema.sql` manually in the

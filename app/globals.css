@@ -42,7 +42,7 @@
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+    @apply mx-auto w-full max-w-7xl px-[clamp(1rem,4vw,2rem)];
   }
 
   .eyebrow {
@@ -111,23 +111,8 @@
   }
 }
 
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .reveal {
   animation: rise 0.7s ease both;
-}
-
-.menu-panel {
-  animation: menu-in 0.18s ease-out both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -135,8 +120,7 @@
     scroll-behavior: auto;
   }
 
-  .reveal,
-  .menu-panel {
+  .reveal {
     animation: none;
   }
 }

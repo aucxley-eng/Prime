@@ -108,7 +108,7 @@ export default async function AboutPage() {
               Clear information, direct contact, a viewing first
             </h2>
           </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: "pin" as const,
@@ -163,7 +163,7 @@ export default async function AboutPage() {
               <Icon name="arrow" className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
             {AREAS.map((area) => (
               <Link
                 key={area.name}
@@ -174,16 +174,16 @@ export default async function AboutPage() {
                   src={area.image}
                   alt={`Illustrative photograph of property in ${area.name}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 767px) 50vw, 33vw"
                   className="object-cover opacity-65 transition duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-cream">
-                  <span className="text-[0.65rem] font-extrabold uppercase tracking-[0.2em] text-gold-2">
+                <div className="absolute inset-x-0 bottom-0 p-3 text-cream sm:p-5">
+                  <span className="text-[0.5rem] font-extrabold uppercase tracking-[0.16em] text-gold-2 sm:text-[0.65rem] sm:tracking-[0.2em]">
                     {area.county}
                   </span>
-                  <h3 className="mt-1 text-2xl font-semibold">{area.name}</h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-cream/70">
+                  <h3 className="mt-1 text-base font-semibold sm:text-2xl">{area.name}</h3>
+                  <p className="mt-2 hidden line-clamp-2 text-sm text-cream/70 sm:block">
                     {area.blurb}
                   </p>
                 </div>

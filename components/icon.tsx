@@ -20,7 +20,8 @@ type IconName =
   | "trash"
   | "eye"
   | "inbox"
-  | "search";
+  | "search"
+  | "info";
 
 const paths: Record<IconName, React.ReactNode> = {
   pin: (
@@ -125,6 +126,12 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <circle cx="11" cy="11" r="7" />
       <path d="m20 20-3.5-3.5" />
+    </>
+  ),
+  info: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 11v5m0-8h.01" />
     </>
   ),
 };

@@ -96,7 +96,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
             {featured.map((property) => (
               <PropertyCard
                 key={property.id}
@@ -116,7 +116,7 @@ export default async function HomePage() {
               Three areas, different reasons to choose them
             </h2>
           </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-3">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
             {AREAS.map((area) => (
               <Link
                 key={area.name}
@@ -127,21 +127,22 @@ export default async function HomePage() {
                   src={area.image}
                   alt={`Illustrative photograph of property in ${area.name}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 767px) 50vw, 33vw"
                   className="object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-60"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 text-cream">
-                  <span className="text-[0.65rem] font-extrabold uppercase tracking-[0.2em] text-gold-2">
+                <div className="absolute inset-x-0 bottom-0 p-3 text-cream sm:p-5">
+                  <span className="text-[0.5rem] font-extrabold uppercase tracking-[0.16em] text-gold-2 sm:text-[0.65rem] sm:tracking-[0.2em]">
                     {area.county}
                   </span>
-                  <h3 className="mt-1 text-2xl font-semibold">{area.name}</h3>
-                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-cream/70">
+                  <h3 className="mt-1 text-lg font-semibold sm:text-2xl">{area.name}</h3>
+                  <p className="mt-2 hidden line-clamp-3 text-sm leading-6 text-cream/70 sm:block">
                     {area.blurb}
                   </p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider">
-                    Browse {area.name}
-                    <Icon name="arrow" className="h-4 w-4" />
+                  <span className="mt-2 inline-flex items-center gap-1.5 text-[0.55rem] font-extrabold uppercase tracking-wider sm:mt-4 sm:gap-2 sm:text-xs">
+                    <span className="sm:hidden">Browse</span>
+                    <span className="hidden sm:inline">Browse {area.name}</span>
+                    <Icon name="arrow" className="h-3 w-3 sm:h-4 sm:w-4" />
                   </span>
                 </div>
               </Link>

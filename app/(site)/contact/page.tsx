@@ -151,7 +151,7 @@ export default async function ContactPage() {
       <section className="pb-16 sm:pb-20">
         <div className="container-page">
           <h2 className="text-2xl font-semibold">Common questions</h2>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
             {[
               {
                 question: "How do I arrange a viewing?",

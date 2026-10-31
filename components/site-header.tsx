@@ -3,8 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { Icon } from "@/components/icon";
+import { SearchLauncher } from "@/components/search-launcher";
 import type { SiteSettings } from "@/lib/types";
 import {
   generalEnquiryMessage,
@@ -23,25 +23,7 @@ const links = [
 
 export function SiteHeader({ settings }: { settings: SiteSettings }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
   const whatsapp = whatsappUrl(generalEnquiryMessage(), settings);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
 
   function isActive(key?: string) {
     if (key === "sale" || key === "rent") return false;
@@ -113,9 +95,10 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <SearchLauncher />
           <a
-            className="btn btn-primary btn-sm hidden sm:inline-flex"
+            className="hidden h-11 items-center justify-center gap-2 rounded-full bg-ink px-4 text-xs font-bold text-cream transition hover:bg-ink-2 sm:inline-flex"
             href={whatsapp}
             target="_blank"
             rel="noopener noreferrer"
@@ -123,93 +106,17 @@ export function SiteHeader({ settings }: { settings: SiteSettings }) {
             <Icon name="whatsapp" className="h-4 w-4" />
             WhatsApp us
           </a>
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line text-ink sm:h-11 sm:w-11 lg:hidden"
-            aria-expanded={open}
-            aria-controls="mobile-navigation"
-            aria-label={open ? "Close menu" : "Open menu"}
-            onClick={() => setOpen((value) => !value)}
+          <a
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-[#25d366] text-white transition hover:brightness-95 sm:hidden"
+            href={whatsapp}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Chat with Prime Sahara Properties on WhatsApp"
           >
-            <Icon name={open ? "close" : "menu"} />
-          </button>
+            <Icon name="whatsapp" className="h-4 w-4" />
+          </a>
         </div>
       </div>
-
-      {open ? (
-        <div
-          id="mobile-navigation"
-          className="menu-panel absolute inset-x-0 top-full max-h-[calc(100dvh-6rem)] overflow-y-auto border-t border-line bg-cream shadow-2xl shadow-ink/15 lg:hidden"
-        >
-          <nav className="container-page py-4" aria-label="Mobile">
-            <div className="grid grid-cols-2 gap-2">
-              {links.map((link) => (
-                <Link
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={`flex min-h-11 items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-sm font-bold transition ${
-                    isActive(link.key || link.href)
-                      ? "border-ink bg-ink text-cream"
-                      : "border-line bg-white text-ink/75 hover:border-ink/40 hover:text-ink"
-                  }`}
-                >
-                  {link.label}
-                  <Icon name="arrow" className="h-3.5 w-3.5 opacity-40" />
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-3 rounded-2xl bg-ink p-3.5 text-cream">
-              <p className="px-1 text-[0.62rem] font-extrabold uppercase tracking-[0.18em] text-gold-2">
-                Talk to us
-              </p>
-              <div className="mt-2.5 grid grid-cols-2 gap-2">
-                <a
-                  className="btn btn-gold btn-sm w-full"
-                  href={whatsapp}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setOpen(false)}
-                >
-                  <Icon name="whatsapp" className="h-4 w-4" />
-                  WhatsApp
-                </a>
-                <a
-                  className="btn btn-sm w-full border border-cream/25 text-cream hover:bg-cream hover:text-ink"
-                  href={telHref(settings.phonePrimaryTel)}
-                  onClick={() => setOpen(false)}
-                >
-                  <Icon name="phone" className="h-4 w-4" />
-                  Call
-                </a>
-              </div>
-              <p className="mt-2 px-1 text-xs leading-5 text-cream/55">
-                {settings.phonePrimaryLabel} · {settings.hours}
-              </p>
-            </div>
-
-            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-3.5 py-2.5 text-xs font-semibold text-ink/55">
-              <a
-                className="inline-flex items-center gap-1.5 hover:text-clay"
-                href={telHref(settings.phoneSecondaryTel)}
-              >
-                <Icon name="phone" className="h-3.5 w-3.5" />
-                {settings.phoneSecondaryLabel}
-              </a>
-              <a
-                className="inline-flex items-center gap-1.5 hover:text-clay"
-                href={settings.facebookUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Icon name="facebook" className="h-3.5 w-3.5" />
-                Facebook
-              </a>
-            </div>
-          </nav>
-        </div>
-      ) : null}
     </header>
   );
 }

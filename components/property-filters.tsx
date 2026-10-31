@@ -73,7 +73,7 @@ export function PropertyFilters({
 
       <form
         onSubmit={onSearch}
-        className="mt-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_0.8fr_1fr_auto]"
+        className="mt-5 grid gap-3 rounded-2xl border border-line bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_0.8fr_1fr_auto]"
       >
         <label className="relative block">
           <span className="sr-only">Search properties</span>
@@ -153,7 +153,7 @@ export function PropertyFilters({
           </select>
         </label>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 sm:col-span-2 lg:col-span-1">
           <button type="submit" className="btn btn-primary flex-1">
             Search
           </button>

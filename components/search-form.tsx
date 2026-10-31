@@ -56,7 +56,7 @@ export function SearchForm() {
           ))}
         </select>
       </label>
-      <button type="submit" className="btn btn-primary lg:px-8">
+      <button type="submit" className="btn btn-primary sm:col-span-2 lg:col-span-1 lg:px-8">
         Search
       </button>
     </form>
