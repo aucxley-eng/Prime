@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ink: #10241e;
+  --color-ink-2: #17362c;
+  --color-ink-3: #235043;
+  --color-cream: #fbf8f2;
+  --color-sand: #f2eadc;
+  --color-gold: #c4953c;
+  --color-gold-2: #e2c17d;
+  --color-clay: #b45b38;
+  --color-line: #e2d9c9;
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-manrope);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-gold/35 text-ink;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 3px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+  }
+
+  .eyebrow {
+    @apply text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-clay;
+  }
+
+  .eyebrow-light {
+    @apply text-gold-2;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-ink text-cream hover:bg-ink-2;
+  }
+
+  .btn-outline {
+    @apply border border-ink/20 text-ink hover:border-ink hover:bg-ink hover:text-cream;
+  }
+
+  .btn-gold {
+    @apply bg-gold text-ink hover:bg-gold-2;
+  }
+
+  .btn-outline-light {
+    @apply border border-cream/30 text-cream hover:bg-cream hover:text-ink;
+  }
+
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-extrabold uppercase tracking-[0.14em] text-ink/70;
+  }
+
+  .field-input,
+  .field-select,
+  .field-textarea {
+    @apply w-full rounded-xl border border-line bg-white px-4 py-3 text-sm text-ink shadow-sm transition placeholder:text-ink/35 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/25;
+  }
+
+  .field-textarea {
+    @apply min-h-28 resize-y;
+  }
+
+  .field-help {
+    @apply mt-1.5 text-xs leading-relaxed text-ink/55;
+  }
+
+  .admin-card {
+    @apply rounded-2xl border border-line bg-white p-5 shadow-sm sm:p-6;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal {
+  animation: rise 0.7s ease both;
+}
+
+.menu-panel {
+  animation: menu-in 0.18s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .menu-panel {
+    animation: none;
+  }
+}
